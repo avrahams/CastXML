@@ -1564,6 +1564,19 @@ void ASTVisitor::OutputFunctionHelper(clang::FunctionDecl const* d,
     this->OS << " artificial=\"1\"";
   }
 
+  if (d->hasBody()) {
+    clang::Stmt* statement = d->getBody();
+    // Generate string and string ostream.
+    std::string stmt;
+    llvm::raw_string_ostream stream(stmt);
+    statement->printPretty(
+      stream, NULL, clang::PrintingPolicy(clang::LangOptions()));
+
+    // Flush ostream buffer.
+    stream.flush();
+    this->OS << " body=\"" + stmt + "\""; 
+  }
+  
   if (clang::CXXMethodDecl const* md =
         clang::dyn_cast<clang::CXXMethodDecl>(d)) {
     if (md->size_overridden_methods() > 0) {
